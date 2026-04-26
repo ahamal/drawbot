@@ -14,6 +14,11 @@ struct Status {
   String      last_error;
 };
 
+struct MotionConfig {
+  float max_speed_sps;     // top speed for any single axis
+  float acceleration_sps2; // ramp rate
+};
+
 void motion_init();
 void motion_tick();   // call from loop()
 
@@ -21,3 +26,9 @@ void motion_tick();   // call from loop()
 bool   motion_enqueue(const std::vector<Command>& cmds, String& err);
 void   motion_abort();
 Status motion_status();
+
+// Runtime-tunable speed/accel (UI exposes these via /config).
+// Persisted to NVS so changes survive reboot. Defaults come from config.h.
+void         motion_load_config();                                // call before motion_init()
+void         motion_set_config(float max_speed, float acceleration);
+MotionConfig motion_get_config();

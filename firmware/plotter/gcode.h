@@ -5,7 +5,8 @@ enum class Op : uint8_t {
   None,
   G0,    // rapid move (caller handles pen-up convention)
   G1,    // linear move
-  G28,   // home
+  G28,   // home (drive to 0,0)
+  G92,   // set position: declare current point as the given coordinate
   G90,   // absolute coordinates
   G91,   // relative coordinates
   M3,    // pen down

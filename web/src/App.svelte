@@ -4,9 +4,12 @@
   import JogPad       from './lib/JogPad.svelte';
   import PenControls  from './lib/PenControls.svelte';
   import Actions      from './lib/Actions.svelte';
+  import SpeedConfig  from './lib/SpeedConfig.svelte';
   import JobPanel     from './lib/JobPanel.svelte';
+  import DrawView     from './lib/DrawView.svelte';
   import { getStatus } from './lib/api.js';
 
+  let view = 'home';     // 'home' | 'draw'
   let status = null;
   let online = false;
   let timer;
@@ -29,27 +32,39 @@
 </script>
 
 <header>
-  <h1>TinyRoboCo</h1>
-  <div class="pill" class:ok={online} class:err={!online}>
-    {online ? 'online' : 'offline'}
+  <h1>drawbot</h1>
+  <div class="indicator" class:ok={online} class:err={!online}>
+    <span class="dot" />{online ? 'online' : 'offline'}
   </div>
 </header>
 
-<StatusPanel {status} />
-<JogPad />
-<PenControls />
-<Actions />
-<JobPanel />
+{#if view === 'home'}
+  <button class="primary" on:click={() => view = 'draw'}>Start Drawing</button>
+  <StatusPanel {status} />
+  <JogPad />
+  <PenControls />
+  <Actions />
+  <SpeedConfig />
+  <JobPanel />
+{:else if view === 'draw'}
+  <DrawView on:back={() => view = 'home'} />
+{/if}
 
 <style>
-  .pill {
-    padding: 0.25rem 0.75rem;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    background: #ddd;
-    color: #444;
+  .indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #888;
   }
-  .pill.ok  { background: #d4edda; color: #155724; }
-  .pill.err { background: #f8d7da; color: #721c24; }
+  .indicator.ok  { color: #16a34a; }
+  .indicator.err { color: #dc2626; }
+  .dot {
+    width: 6px; height: 6px;
+    background: currentColor;
+    display: inline-block;
+  }
 </style>

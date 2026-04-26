@@ -18,7 +18,8 @@
 </section>
 
 <style>
-  dl { display: grid; grid-template-columns: 6rem 1fr; gap: 0.25rem 1rem; margin: 0; }
-  dt { color: #666; font-size: 0.85rem; }
-  dd { margin: 0; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  dl { display: grid; grid-template-columns: 5rem 1fr; gap: 0.15rem 0.75rem; margin: 0; }
+  dt { color: #666; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; align-self: center; }
+  dd { margin: 0; color: #1a1a1a; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  p  { margin: 0; color: #888; }
 </style>

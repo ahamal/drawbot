@@ -25,6 +25,7 @@ void setup() {
   Serial.println();
   Serial.println("TinyRoboCo plotter booting");
 
+  motion_load_config();   // load speed/accel from NVS (defaults from config.h)
   motion_init();
   wifi_setup_init();
   http_api_init();

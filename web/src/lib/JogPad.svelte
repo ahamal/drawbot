@@ -28,15 +28,15 @@
 </section>
 
 <style>
-  .step { margin-bottom: 0.5rem; }
+  .step { margin-bottom: 0.4rem; }
   .pad {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 4rem));
-    grid-template-rows: repeat(3, 2.5rem);
-    gap: 0.25rem;
+    grid-template-columns: repeat(3, minmax(0, 3rem));
+    grid-template-rows: repeat(3, 1.75rem);
+    gap: 0.15rem;
     justify-content: center;
   }
-  .pad button { margin: 0; width: 100%; padding: 0; }
+  .pad button { margin: 0; width: 100%; padding: 0; font-size: 0.7rem; }
   .pad button:nth-child(1) { grid-column: 2; grid-row: 1; }
   .pad button:nth-child(2) { grid-column: 1; grid-row: 2; }
   .pad button:nth-child(3) { grid-column: 3; grid-row: 2; }

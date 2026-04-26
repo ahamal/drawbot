@@ -84,6 +84,27 @@ static void handleHome() {
   server.send(202, "text/plain", "homing\n");
 }
 
+static String configJson() {
+  MotionConfig c = motion_get_config();
+  return String("{\"max_speed\":") + String(c.max_speed_sps, 0) +
+         ",\"acceleration\":" + String(c.acceleration_sps2, 0) + "}";
+}
+
+static void handleGetConfig() {
+  server.send(200, "application/json", configJson());
+}
+
+static void handleSetConfig() {
+  // Form-encoded body: max_speed=<sps>&acceleration=<sps2>. Either may be omitted.
+  MotionConfig cur = motion_get_config();
+  float max_speed = cur.max_speed_sps;
+  float accel     = cur.acceleration_sps2;
+  if (server.hasArg("max_speed"))    max_speed = server.arg("max_speed").toFloat();
+  if (server.hasArg("acceleration")) accel     = server.arg("acceleration").toFloat();
+  motion_set_config(max_speed, accel);
+  server.send(200, "application/json", configJson());
+}
+
 static void serveStatic(const char* contentType, const char* body) {
   server.sendHeader("Cache-Control", "no-cache");
   server.send_P(200, contentType, body);
@@ -98,9 +119,11 @@ void http_api_init() {
   server.on("/job",    HTTP_POST, handleJob);
   server.on("/stop",   HTTP_POST, handleStop);
   server.on("/home",   HTTP_POST, handleHome);
+  server.on("/config", HTTP_GET,  handleGetConfig);
+  server.on("/config", HTTP_POST, handleSetConfig);
 
   server.onNotFound([]() {
-    server.send(404, "text/plain", "TinyRoboCo: try /, /status, /job, /stop, /home\n");
+    server.send(404, "text/plain", "TinyRoboCo: try /, /status, /job, /stop, /home, /config\n");
   });
   server.begin();
 }

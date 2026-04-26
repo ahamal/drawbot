@@ -37,6 +37,7 @@ bool parseLine(const String& raw, Command& out) {
         if      (ival == 0)  out.op = Op::G0;
         else if (ival == 1)  out.op = Op::G1;
         else if (ival == 28) out.op = Op::G28;
+        else if (ival == 92) out.op = Op::G92;
         else if (ival == 90) out.op = Op::G90;
         else if (ival == 91) out.op = Op::G91;
         else return false;

@@ -18,9 +18,27 @@
 
 // Pen-lift servo
 #define SERVO_PIN     13
-#define PEN_UP_DEG    60   // calibrate after pen mount built
-#define PEN_DOWN_DEG  100
+#define PEN_UP_DEG    90   // direction reversed + swing halved (was 60..100, 40°)
+#define PEN_DOWN_DEG  70   // now centered at 80° with a 20° swing
 #define PEN_SETTLE_MS 200  // wait after write() before next command
+
+// Kinematics — pick exactly one. The chosen one selects the X/Y → motor mapping
+// in motion.cpp. Cartesian: each motor drives one axis directly. CoreXY: both
+// motors are stationary, belts/threads cross, and a step combo drives both axes
+// (motor A = X+Y, motor B = X−Y in step space).
+#define GEOMETRY_COREXY
+// #define GEOMETRY_CARTESIAN
+
+// Workspace orientation — flip these after wiring if a jog goes the wrong way.
+// They operate on (x, y) BEFORE kinematics, so the same flag has the same
+// operator-visible meaning regardless of geometry.
+//
+// Typical calibration: jog +X 10 from the UI. Right? Else flip INVERT_X.
+//                      jog +Y 10. Down? Else flip INVERT_Y.
+//                      Did +X move along Y instead? Flip SWAP_XY.
+#define INVERT_X 0
+#define INVERT_Y 0
+#define SWAP_XY  0
 
 // Motion
 #define STEPS_PER_REV 4096                                  // half-step, 1:64 gearbox
@@ -30,8 +48,10 @@
 #define ACCEL_SPS2    500.0f
 
 // Build envelope (mm). Soft limits — commands are clamped to these.
-#define X_MAX_MM 148.0f    // ~A5 width
-#define Y_MAX_MM 210.0f    // ~A5 height
+// Bumped to 3000 for bench testing (no frame yet). Tighten back to A5 once
+// the carriage is built: 148 (X) × 210 (Y).
+#define X_MAX_MM 3000.0f
+#define Y_MAX_MM 3000.0f
 
 // Network
 #define HOSTNAME           "drawbot"          // -> http://drawbot.local
