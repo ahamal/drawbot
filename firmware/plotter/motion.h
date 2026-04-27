@@ -17,6 +17,9 @@ struct Status {
 struct MotionConfig {
   float max_speed_sps;     // top speed for any single axis
   float acceleration_sps2; // ramp rate
+  int   pen_up_deg;        // servo angle for pen lifted off paper
+  int   pen_down_deg;      // servo angle for pen pressing on paper
+  float steps_per_mm;      // calibration: motor steps per mm of carriage travel
 };
 
 void motion_init();
@@ -30,5 +33,7 @@ Status motion_status();
 // Runtime-tunable speed/accel (UI exposes these via /config).
 // Persisted to NVS so changes survive reboot. Defaults come from config.h.
 void         motion_load_config();                                // call before motion_init()
-void         motion_set_config(float max_speed, float acceleration);
+void         motion_set_config(float max_speed, float acceleration,
+                               int pen_up_deg, int pen_down_deg,
+                               float steps_per_mm);
 MotionConfig motion_get_config();

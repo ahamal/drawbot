@@ -22,12 +22,15 @@ static String      gLastError;
 // Runtime config — loaded from NVS at boot, defaults from config.h.
 static float gMaxSpeed     = MAX_SPEED_SPS;
 static float gAcceleration = ACCEL_SPS2;
+static int   gPenUpDeg     = PEN_UP_DEG;
+static int   gPenDownDeg   = PEN_DOWN_DEG;
+static float gStepsPerMm   = STEPS_PER_MM;   // theoretical default; calibrate empirically
 
 static std::vector<Command> gQueue;
 static size_t        gQueuePos = 0;
 static unsigned long gPenSettleUntil = 0;
 
-static long mmToSteps(float mm) { return (long)lroundf(mm * STEPS_PER_MM); }
+static long mmToSteps(float mm) { return (long)lroundf(mm * gStepsPerMm); }
 
 static void clamp(float& x, float lo, float hi) {
   if (x < lo) x = lo; if (x > hi) x = hi;
@@ -109,7 +112,7 @@ static void setPosition(float x, float y) {
 }
 
 static void setPen(PenState p) {
-  penServo.write(p == PenState::Down ? PEN_DOWN_DEG : PEN_UP_DEG);
+  penServo.write(p == PenState::Down ? gPenDownDeg : gPenUpDeg);
   gPen = p;
   gPenSettleUntil = millis() + PEN_SETTLE_MS;
   gState = MotionState::PenSettling;
@@ -155,6 +158,9 @@ void motion_load_config() {
   prefs.begin("drawbot", true);   // read-only
   gMaxSpeed     = prefs.getFloat("max_speed", MAX_SPEED_SPS);
   gAcceleration = prefs.getFloat("accel",     ACCEL_SPS2);
+  gPenUpDeg     = prefs.getInt  ("pen_up",    PEN_UP_DEG);
+  gPenDownDeg   = prefs.getInt  ("pen_down",  PEN_DOWN_DEG);
+  gStepsPerMm   = prefs.getFloat("steps_mm",  STEPS_PER_MM);
   prefs.end();
 }
 
@@ -162,6 +168,9 @@ static void saveConfig() {
   prefs.begin("drawbot", false);  // read-write
   prefs.putFloat("max_speed", gMaxSpeed);
   prefs.putFloat("accel",     gAcceleration);
+  prefs.putInt  ("pen_up",    gPenUpDeg);
+  prefs.putInt  ("pen_down",  gPenDownDeg);
+  prefs.putFloat("steps_mm",  gStepsPerMm);
   prefs.end();
 }
 
@@ -176,7 +185,7 @@ void motion_init() {
 
   penServo.setPeriodHertz(50);
   penServo.attach(SERVO_PIN, 500, 2400);
-  penServo.write(PEN_UP_DEG);
+  penServo.write(gPenUpDeg);
   gPen = PenState::Up;
 }
 
@@ -225,7 +234,7 @@ void motion_abort() {
   // Hard-stop: target = current position; motors halt on next tick.
   xStepper.moveTo(xStepper.currentPosition());
   yStepper.moveTo(yStepper.currentPosition());
-  penServo.write(PEN_UP_DEG);
+  penServo.write(gPenUpDeg);
   gPen = PenState::Up;
   gPenSettleUntil = millis() + PEN_SETTLE_MS;
   gState = MotionState::PenSettling;
@@ -240,13 +249,19 @@ Status motion_status() {
   };
 }
 
-void motion_set_config(float max_speed, float acceleration) {
-  if (max_speed     > 0) gMaxSpeed     = max_speed;
-  if (acceleration  > 0) gAcceleration = acceleration;
+void motion_set_config(float max_speed, float acceleration,
+                       int pen_up_deg, int pen_down_deg,
+                       float steps_per_mm) {
+  if (max_speed    > 0)                                 gMaxSpeed     = max_speed;
+  if (acceleration > 0)                                 gAcceleration = acceleration;
+  if (pen_up_deg   >= 0 && pen_up_deg   <= 180)         gPenUpDeg     = pen_up_deg;
+  if (pen_down_deg >= 0 && pen_down_deg <= 180)         gPenDownDeg   = pen_down_deg;
+  if (steps_per_mm > 0)                                 gStepsPerMm   = steps_per_mm;
   saveConfig();
-  // New values take effect on the NEXT startMoveTo. Don't disturb a move in flight.
+  // New values take effect on the NEXT startMoveTo / setPen. Don't disturb
+  // a move or settle currently in flight.
 }
 
 MotionConfig motion_get_config() {
-  return MotionConfig{ gMaxSpeed, gAcceleration };
+  return MotionConfig{ gMaxSpeed, gAcceleration, gPenUpDeg, gPenDownDeg, gStepsPerMm };
 }

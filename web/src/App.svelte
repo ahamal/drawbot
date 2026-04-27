@@ -3,8 +3,10 @@
   import StatusPanel  from './lib/StatusPanel.svelte';
   import JogPad       from './lib/JogPad.svelte';
   import PenControls  from './lib/PenControls.svelte';
+  import PenConfig    from './lib/PenConfig.svelte';
   import Actions      from './lib/Actions.svelte';
   import SpeedConfig  from './lib/SpeedConfig.svelte';
+  import CalibConfig  from './lib/CalibConfig.svelte';
   import JobPanel     from './lib/JobPanel.svelte';
   import DrawView     from './lib/DrawView.svelte';
   import { getStatus } from './lib/api.js';
@@ -43,8 +45,10 @@
   <StatusPanel {status} />
   <JogPad />
   <PenControls />
+  <PenConfig />
   <Actions />
   <SpeedConfig />
+  <CalibConfig />
   <JobPanel />
 {:else if view === 'draw'}
   <DrawView on:back={() => view = 'home'} />

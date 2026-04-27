@@ -86,8 +86,11 @@ static void handleHome() {
 
 static String configJson() {
   MotionConfig c = motion_get_config();
-  return String("{\"max_speed\":") + String(c.max_speed_sps, 0) +
-         ",\"acceleration\":" + String(c.acceleration_sps2, 0) + "}";
+  return String("{\"max_speed\":")    + String(c.max_speed_sps, 0) +
+         ",\"acceleration\":"         + String(c.acceleration_sps2, 0) +
+         ",\"pen_up_deg\":"           + String(c.pen_up_deg) +
+         ",\"pen_down_deg\":"         + String(c.pen_down_deg) +
+         ",\"steps_per_mm\":"         + String(c.steps_per_mm, 4) + "}";
 }
 
 static void handleGetConfig() {
@@ -95,13 +98,20 @@ static void handleGetConfig() {
 }
 
 static void handleSetConfig() {
-  // Form-encoded body: max_speed=<sps>&acceleration=<sps2>. Either may be omitted.
+  // Query/form params: any subset of max_speed, acceleration, pen_up_deg,
+  // pen_down_deg, steps_per_mm. Omitted values keep their current value.
   MotionConfig cur = motion_get_config();
-  float max_speed = cur.max_speed_sps;
-  float accel     = cur.acceleration_sps2;
-  if (server.hasArg("max_speed"))    max_speed = server.arg("max_speed").toFloat();
-  if (server.hasArg("acceleration")) accel     = server.arg("acceleration").toFloat();
-  motion_set_config(max_speed, accel);
+  float max_speed   = cur.max_speed_sps;
+  float accel       = cur.acceleration_sps2;
+  int   pen_up      = cur.pen_up_deg;
+  int   pen_down    = cur.pen_down_deg;
+  float steps_mm    = cur.steps_per_mm;
+  if (server.hasArg("max_speed"))     max_speed = server.arg("max_speed").toFloat();
+  if (server.hasArg("acceleration"))  accel     = server.arg("acceleration").toFloat();
+  if (server.hasArg("pen_up_deg"))    pen_up    = server.arg("pen_up_deg").toInt();
+  if (server.hasArg("pen_down_deg"))  pen_down  = server.arg("pen_down_deg").toInt();
+  if (server.hasArg("steps_per_mm"))  steps_mm  = server.arg("steps_per_mm").toFloat();
+  motion_set_config(max_speed, accel, pen_up, pen_down, steps_mm);
   server.send(200, "application/json", configJson());
 }
 

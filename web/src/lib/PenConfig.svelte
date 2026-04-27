@@ -1,8 +1,8 @@
 <script>
   import { onMount } from 'svelte';
 
-  let maxSpeed = 1200;
-  let acceleration = 600;
+  let penUp = 90;
+  let penDown = 70;
   let saving = false;
   let dirty = false;
 
@@ -11,8 +11,8 @@
       const r = await fetch('/config');
       if (!r.ok) return;
       const j = await r.json();
-      maxSpeed = Math.round(j.max_speed);
-      acceleration = Math.round(j.acceleration);
+      penUp = j.pen_up_deg;
+      penDown = j.pen_down_deg;
       dirty = false;
     } catch (_e) {}
   }
@@ -20,12 +20,12 @@
   async function apply() {
     saving = true;
     try {
-      const url = `/config?max_speed=${maxSpeed}&acceleration=${acceleration}`;
+      const url = `/config?pen_up_deg=${penUp}&pen_down_deg=${penDown}`;
       const r = await fetch(url, { method: 'POST' });
       if (r.ok) {
         const j = await r.json();
-        maxSpeed = Math.round(j.max_speed);
-        acceleration = Math.round(j.acceleration);
+        penUp = j.pen_up_deg;
+        penDown = j.pen_down_deg;
         dirty = false;
       }
     } finally {
@@ -37,24 +37,24 @@
 </script>
 
 <section>
-  <h2>Speed</h2>
+  <h2>Pen calibration</h2>
 
   <label>
     <span class="row">
-      <span>Max speed</span>
-      <span class="val">{maxSpeed} sps</span>
+      <span>Pen up</span>
+      <span class="val">{penUp}°</span>
     </span>
-    <input type="range" min="100" max="2400" step="50"
-           bind:value={maxSpeed} on:input={() => dirty = true} />
+    <input type="range" min="0" max="180" step="1"
+           bind:value={penUp} on:input={() => dirty = true} />
   </label>
 
   <label>
     <span class="row">
-      <span>Acceleration</span>
-      <span class="val">{acceleration} sps²</span>
+      <span>Pen down</span>
+      <span class="val">{penDown}°</span>
     </span>
-    <input type="range" min="100" max="8000" step="50"
-           bind:value={acceleration} on:input={() => dirty = true} />
+    <input type="range" min="0" max="180" step="1"
+           bind:value={penDown} on:input={() => dirty = true} />
   </label>
 
   <button on:click={apply} disabled={saving || !dirty}>
@@ -82,8 +82,5 @@
     width: 100%;
     accent-color: #1a1a1a;
   }
-  button[disabled] {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  button[disabled] { opacity: 0.5; cursor: not-allowed; }
 </style>

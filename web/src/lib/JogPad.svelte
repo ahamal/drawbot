@@ -20,10 +20,14 @@
     </label>
   </div>
   <div class="pad">
-    <button on:click={() => jog(0, 1)}>Y+</button>
+    <button on:click={() => jog(0, -1)}>Y−</button>
     <button on:click={() => jog(-1, 0)}>X−</button>
     <button on:click={() => jog(1, 0)}>X+</button>
-    <button on:click={() => jog(0, -1)}>Y−</button>
+    <button on:click={() => jog(0, 1)}>Y+</button>
+  </div>
+  <div class="origin-row">
+    <button on:click={() => sendJob('G92 X0 Y0')}>Set Origin</button>
+    <button on:click={() => sendJob('G28')}>Home</button>
   </div>
 </section>
 
@@ -41,4 +45,5 @@
   .pad button:nth-child(2) { grid-column: 1; grid-row: 2; }
   .pad button:nth-child(3) { grid-column: 3; grid-row: 2; }
   .pad button:nth-child(4) { grid-column: 2; grid-row: 3; }
+  .origin-row { margin-top: 0.5rem; display: flex; gap: 0.25rem; }
 </style>
