@@ -25,6 +25,9 @@ static void handleStatus() {
   body += "\"x_mm\":";             body += String(s.x_mm, 2); body += ",";
   body += "\"y_mm\":";             body += String(s.y_mm, 2); body += ",";
   body += "\"queue_remaining\":";  body += String((unsigned)s.queue_remaining); body += ",";
+  body += "\"job_id\":";           body += String(s.job_id); body += ",";
+  body += "\"total_cmds\":";       body += String((unsigned)s.total_cmds); body += ",";
+  body += "\"cmds_done\":";        body += String((unsigned)s.cmds_done); body += ",";
   body += "\"last_error\":";
   if (s.last_error.length() == 0) body += "null";
   else { body += "\""; body += s.last_error; body += "\""; }
@@ -63,7 +66,11 @@ static void handleJob() {
     server.send(409, "text/plain", err + "\n");
     return;
   }
-  String body = "{\"queued\":" + String((unsigned)cmds.size()) + "}";
+  Status s = motion_status();
+  String body = "{";
+  body += "\"job_id\":";    body += String(s.job_id); body += ",";
+  body += "\"total_cmds\":"; body += String((unsigned)s.total_cmds);
+  body += "}";
   server.send(202, "application/json", body);
 }
 

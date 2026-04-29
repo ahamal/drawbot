@@ -30,6 +30,15 @@ static std::vector<Command> gQueue;
 static size_t        gQueuePos = 0;
 static unsigned long gPenSettleUntil = 0;
 
+// Job tracking. `gJobId` is incremented per `motion_enqueue` so the
+// web client can detect job changes (or reboots — counter resets to 1
+// on boot, which won't match any older stored ID). 0 means "no job
+// since boot".
+static unsigned long gJobId       = 0;
+static unsigned long gJobIdNext   = 1;
+static size_t        gTotalCmds   = 0;
+static size_t        gCmdsDone    = 0;
+
 static long mmToSteps(float mm) { return (long)lroundf(mm * gStepsPerMm); }
 
 static void clamp(float& x, float lo, float hi) {
@@ -127,12 +136,16 @@ static void runHome() {
 
 static void executeNext() {
   if (gQueuePos >= gQueue.size()) {
+    // Job completed normally. Mark cmds_done = total so the client sees
+    // 100% even after we clear the queue.
+    gCmdsDone = gTotalCmds;
     gQueue.clear();
     gQueuePos = 0;
     gState = MotionState::Idle;
     return;
   }
   const Command& c = gQueue[gQueuePos++];
+  gCmdsDone = gQueuePos;
   switch (c.op) {
     case Op::G0:
     case Op::G1: {
@@ -222,9 +235,12 @@ bool motion_enqueue(const std::vector<Command>& cmds, String& err) {
     err = "busy";
     return false;
   }
-  gQueue = cmds;
-  gQueuePos = 0;
-  gLastError = "";
+  gJobId      = gJobIdNext++;
+  gTotalCmds  = cmds.size();
+  gCmdsDone   = 0;
+  gQueue      = cmds;
+  gQueuePos   = 0;
+  gLastError  = "";
   return true;
 }
 
@@ -246,6 +262,7 @@ Status motion_status() {
     gState, gPen, gX_mm, gY_mm,
     (gQueue.size() > gQueuePos) ? (gQueue.size() - gQueuePos) : 0,
     gLastError,
+    gJobId, gTotalCmds, gCmdsDone,
   };
 }
 

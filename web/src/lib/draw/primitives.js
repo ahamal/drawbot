@@ -1,19 +1,14 @@
-// Polyline generators for test shapes. All sizes in mm, top-left origin,
-// Y increases downward — matches the firmware's coordinate convention.
+// Polyline generators for test shapes. All sizes in mm. Pure functions —
+// the caller decides where on the paper they go and how big they are.
 //
 // Each function returns an array of polylines. A polyline is an array of
 // [x, y] points. Multiple polylines means the pen lifts between them.
 
-export const A5_W = 148;
-export const A5_H = 210;
-const CX = A5_W / 2;
-const CY = A5_H / 2;
-
-export function line(x1 = 20, y1 = 30, x2 = A5_W - 20, y2 = A5_H - 30) {
+export function line(x1, y1, x2, y2) {
   return [[ [x1, y1], [x2, y2] ]];
 }
 
-export function square(side = 50, cx = CX, cy = CY) {
+export function square(cx, cy, side) {
   const h = side / 2;
   return [[
     [cx - h, cy - h],
@@ -24,7 +19,7 @@ export function square(side = 50, cx = CX, cy = CY) {
   ]];
 }
 
-export function circle(r = 30, cx = CX, cy = CY, segments = 32) {
+export function circle(cx, cy, r, segments = 32) {
   const pts = [];
   for (let i = 0; i <= segments; i++) {
     const t = (i / segments) * 2 * Math.PI;
@@ -33,7 +28,7 @@ export function circle(r = 30, cx = CX, cy = CY, segments = 32) {
   return [pts];
 }
 
-export function spiral(maxR = 40, turns = 5, cx = CX, cy = CY, segPerTurn = 32) {
+export function spiral(cx, cy, maxR, turns = 5, segPerTurn = 32) {
   const total = turns * segPerTurn;
   const pts = [];
   for (let i = 0; i <= total; i++) {
@@ -43,3 +38,11 @@ export function spiral(maxR = 40, turns = 5, cx = CX, cy = CY, segPerTurn = 32) 
   }
   return [pts];
 }
+
+// Paper size presets. Dimensions in mm, portrait orientation.
+export const PAPER_PRESETS = [
+  { name: 'A5',     w: 148, h: 210 },
+  { name: 'A4',     w: 210, h: 297 },
+  { name: 'A3',     w: 297, h: 420 },
+  { name: 'Letter', w: 216, h: 279 },
+];

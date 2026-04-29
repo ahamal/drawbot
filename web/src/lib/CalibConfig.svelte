@@ -93,7 +93,7 @@
     <p class="hint">Measure the actual distance with a ruler:</p>
     <label>
       <span>Actual distance (mm)</span>
-      <input type="number" step="0.1" min="0.1" bind:value={actualMm} autofocus />
+      <input type="number" step="0.1" min="0.1" bind:value={actualMm} />
     </label>
     <div class="row-actions">
       <button on:click={applyCalibration} disabled={!(Number(actualMm) > 0)}>

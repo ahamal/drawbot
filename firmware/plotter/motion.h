@@ -12,6 +12,13 @@ struct Status {
   float       x_mm, y_mm;
   size_t      queue_remaining;
   String      last_error;
+  // Job tracking. `job_id` is 0 if no job has run since boot. After a
+  // job completes, `cmds_done == total_cmds`. After an abort,
+  // `cmds_done < total_cmds`. The web UI uses this to reconnect to an
+  // in-progress plot after a tab refresh.
+  unsigned long job_id;
+  size_t        total_cmds;
+  size_t        cmds_done;
 };
 
 struct MotionConfig {
